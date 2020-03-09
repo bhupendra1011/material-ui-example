@@ -50,6 +50,18 @@ const useStyles = makeStyles(theme => ({
 		height: "45px",
 		marginRight: "25px",
 		marginLeft: "50px"
+	},
+	menu: {
+		backgroundColor: theme.palette.common.blue,
+		color: theme.palette.common.white,
+		borderRadius: "0px"
+	},
+	menuItem: {
+		...theme.typography.tab,
+		opacity: 0.7,
+		"&:hover": {
+			opacity: 1
+		}
 	}
 }));
 
@@ -63,6 +75,16 @@ function Header() {
 	const [anchorEle, setAnchorEle] = useState(null);
 	const [open, setOpen] = useState(false);
 
+	// state for submenu Items
+	const [selectedIndex, setSelectedIndex] = useState(0);
+
+	const options = [
+		{ name: "Services", to: "/services" },
+		{ name: "Android Developemnt", to: "/android" },
+		{ name: "IOT Solutions", to: "/iot" },
+		{ name: "Website Solutions", to: "/websites" }
+	];
+
 	const handleClick = e => {
 		setAnchorEle(e.currentTarget);
 		setOpen(true);
@@ -74,12 +96,43 @@ function Header() {
 	};
 
 	useEffect(() => {
-		if (window.location.pathname === "/" && activeTab !== 0) setActiveTab(0);
-		else if (window.location.pathname === "/services" && activeTab !== 1)
-			setActiveTab(1);
-		else if (window.location.pathname === "/contactus" && activeTab !== 2)
-			setActiveTab(2);
-		else {
+		switch (window.location.pathname) {
+			case "/":
+				if (activeTab !== 0) setActiveTab(0);
+				break;
+			case "/services":
+				if (activeTab !== 1) {
+					setActiveTab(1);
+					setSelectedIndex(0);
+				}
+				break;
+
+			case "/android":
+				if (activeTab !== 1) {
+					setActiveTab(1);
+					setSelectedIndex(1);
+				}
+				break;
+			case "/iot":
+				if (activeTab !== 1) {
+					setActiveTab(1);
+					setSelectedIndex(2);
+				}
+				break;
+			case "/websites":
+				if (activeTab !== 1) {
+					setActiveTab(1);
+					setSelectedIndex(3);
+				}
+				break;
+			case "/contactus":
+				if (activeTab !== 2) {
+					setActiveTab(2);
+				}
+				break;
+
+			default:
+				break;
 		}
 	}, [activeTab]);
 	return (
@@ -134,23 +187,23 @@ function Header() {
 							onClose={handleClose}
 							MenuListProps={{ onMouseLeave: handleClose }}
 							onClick={() => setActiveTab(1)}
+							elevation={0}
+							classes={{ paper: classes.menu }}
 						>
-							<MenuItem component={Link} to='/services' onClick={handleClose}>
-								{" "}
-								Services
-							</MenuItem>
-							<MenuItem component={Link} to='/android' onClick={handleClose}>
-								{" "}
-								Android Development
-							</MenuItem>
-							<MenuItem component={Link} to='/iot' onClick={handleClose}>
-								{" "}
-								IOT solutions
-							</MenuItem>
-							<MenuItem component={Link} to='/websites' onClick={handleClose}>
-								{" "}
-								Website Solutions
-							</MenuItem>
+							{options.map((menu, index) => (
+								<MenuItem
+									classes={{ root: classes.menuItem }}
+									component={Link}
+									to={menu.to}
+									onClick={() => {
+										setSelectedIndex(index);
+										handleClose();
+									}}
+									selected={index === selectedIndex && activeTab === 1}
+								>
+									{menu.name}
+								</MenuItem>
+							))}
 						</Menu>
 					</Toolbar>
 				</AppBar>
