@@ -6,17 +6,19 @@ import {
 	useScrollTrigger,
 	Typography,
 	makeStyles,
+	SwipeableDrawer,
 	Tabs,
 	Tab,
 	Button,
 	Menu,
 	MenuItem,
 	useMediaQuery,
-	useTheme
+	useTheme,
+	IconButton
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.svg";
-
+import { MenuOutlined } from "@material-ui/icons";
 // for responsiveness
 
 function ElevationScroll(props) {
@@ -78,6 +80,16 @@ const useStyles = makeStyles(theme => ({
 		"&:hover": {
 			opacity: 1
 		}
+	},
+	drawerIconContainer: {
+		"&:hover": {
+			backgroundColor: "transparent"
+		},
+		marginLeft: "auto"
+	},
+	drawerIcon: {
+		width: "50px",
+		height: "50px"
 	}
 }));
 
@@ -85,17 +97,20 @@ function Header() {
 	const classes = useStyles();
 	const theme = useTheme();
 	const matches = useMediaQuery(theme.breakpoints.down("md"));
+	const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 	const [activeTab, setActiveTab] = useState(0);
 	const handleTabChange = (e, value) => setActiveTab(value);
 
 	//state for menu items
-
 	const [anchorEle, setAnchorEle] = useState(null);
-	const [open, setOpen] = useState(false);
+	const [openMenu, setOpenMenu] = useState(false);
 
 	// state for submenu Items
 	const [selectedIndex, setSelectedIndex] = useState(0);
+
+	// state for drawers
+	const [openDrawer, setOpenDrawer] = useState(false);
 
 	const options = [
 		{ name: "Services", to: "/services" },
@@ -106,12 +121,12 @@ function Header() {
 
 	const handleClick = e => {
 		setAnchorEle(e.currentTarget);
-		setOpen(true);
+		setOpenMenu(true);
 	};
 
 	const handleClose = e => {
 		setAnchorEle(null);
-		setOpen(false);
+		setOpenMenu(false);
 	};
 
 	useEffect(() => {
@@ -187,7 +202,7 @@ function Header() {
 			<Menu
 				id='simple-menu'
 				keepMounted
-				open={open}
+				open={openMenu}
 				anchorEl={anchorEle}
 				onClose={handleClose}
 				MenuListProps={{ onMouseLeave: handleClose }}
@@ -213,6 +228,27 @@ function Header() {
 		</>
 	);
 
+	const drawer = (
+		<>
+			<SwipeableDrawer
+				disableBackdropTransition={!iOS}
+				disableDiscovery={iOS}
+				open={openDrawer}
+				onClose={() => setOpenDrawer(false)}
+				OnOpen={() => setOpenDrawer(true)}
+			>
+				Example drawer
+			</SwipeableDrawer>
+			<IconButton
+				className={classes.drawerIconContainer}
+				onClick={() => setOpenDrawer(!openDrawer)}
+				disableRipple
+			>
+				<MenuOutlined className={classes.drawerIcon} />
+			</IconButton>
+		</>
+	);
+
 	return (
 		<>
 			<ElevationScroll>
@@ -221,7 +257,7 @@ function Header() {
 						<Link to='/' onClick={() => setActiveTab(0)}>
 							<img className={classes.logo} src={logo} alt='company logo' />
 						</Link>
-						{matches ? "mobile content only" : tabs}
+						{matches ? drawer : tabs}
 					</Toolbar>
 				</AppBar>
 			</ElevationScroll>
